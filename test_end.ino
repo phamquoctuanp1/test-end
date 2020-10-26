@@ -7,8 +7,8 @@
 int speakerPin = D8;
 StaticJsonDocument<300> doc;
 
-const char* ssid = "Pham Quoc Tuan MTA";     // your network SSID (name):QUOCDAT::Phenikaa 167 HN
-const char* pass = "tuan151299"; // your network password:66668888:phenikaa2018
+const char* ssid = "Phenikaa 167 HN";     // your network SSID (name):QUOCDAT:Pham Quoc Tuan MTA:
+const char* pass = "phenikaa2018"; // your network password:66668888::tuan151299
 
 class myMQTTBroker: public uMQTTBroker
 {
@@ -41,8 +41,9 @@ public:
         digitalWrite(LED_PIN2,HIGH); 
         delay(1000);
         digitalWrite(LED_PIN2,LOW); 
-        Serial.println(" NO " );
+        
         tone(speakerPin,100,1000);
+        Serial.println(" NO " );
      } 
 
      if(led==1 && speaker==1)
@@ -50,8 +51,9 @@ public:
         digitalWrite(LED_PIN1, HIGH);
         delay(1000);
         digitalWrite(LED_PIN1, LOW); 
-        Serial.println(" YES " );
+        
         tone(speakerPin,1000,500);
+        Serial.println(" YES " );
       
      }
      
@@ -108,7 +110,7 @@ void check()
 delay(1000);
 }
 
-void(* resetFunc) (void) = 0;//cài đặt hàm reset--quay tro ve dong code dau tien
+//void(* resetFunc) (void) = 0;//cài đặt hàm reset--quay tro ve dong code dau tien
 
 void setup()
 {
@@ -125,7 +127,7 @@ void setup()
   myBroker.init();
   myBroker.subscribe("led");
 //
-  client.setServer("192.168.4.1", 1883);
+  client.setServer("10.0.50.77", 1883);//192.168.4.1
 //
 
 
@@ -138,10 +140,10 @@ void loop()
 {
 //  gettime
 //  currenttime ss time
-  check();
-  if(WiFi.status()==1)
-  {
-    resetFunc();//tiến hành reset
-  }
+//  check();
+//  if(WiFi.status()==1)
+//  {
+//    resetFunc();//tiến hành reset
+//  }
 // tao timer dem va so sanh voi 1 bien--> bang nhau --> chay ham  startClient
 }
