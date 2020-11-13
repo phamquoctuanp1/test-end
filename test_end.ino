@@ -2,10 +2,15 @@
 #include <ESP8266WiFi.h>
 #include "uMQTTBroker.h"
 #include <PubSubClient.h>
+
+#include <DFRobotDFPlayerMini.h>
+#include "SoftwareSerial.h"
+SoftwareSerial mySoftwareSerial(D3, D4); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+
 int LED_PIN1 = D5;//blue
 int LED_PIN2 = D6;//green
 int LED_PIN3 = D7;//red 
-int speakerPin = D8;//Chân được nối với loa hoặc buzzer
 
 StaticJsonDocument<300> doc;
 
@@ -44,7 +49,7 @@ public:
 
      if(led==1 && speaker==1)
      {
-      tone(speakerPin,2000,200);
+        myDFPlayer.play(1);
         Serial.println(" led = 1 , speaker = 1 " );
         time_now1 =millis();
         digitalWrite(LED_PIN1, HIGH);
@@ -55,17 +60,20 @@ public:
      }
           if(led==2 && speaker==2)
      {
-      tone(speakerPin,100,1000);
+        myDFPlayer.play(3);
         Serial.println(" led = 2 , speaker = 2 " );
         time_now2 =millis();
         digitalWrite(LED_PIN3, HIGH);
-        while(millis() < time_now1 + dem)
-        {}
+        while(millis() < time_now2 + dem)
+        {
+          Serial.print(".");
+          delay(100);
+        }
         digitalWrite(LED_PIN3, LOW);
         
      }
      else{}
-      Serial.println("received topic '"+control1+"' with data '"+(String)data_str+"'");
+      //Serial.println("received topic '"+control1+"' with data '"+(String)data_str+"'");
      }
 
 //    virtual void onData(String control2, const char *data, uint32_t length) {
@@ -129,7 +137,7 @@ void startWiFiClient()
     delay(500);
     digitalWrite(LED_PIN1, LOW);
     Serial.println("WiFi client connected");
-   Serial.println("IP address: " + WiFi.localIP().toString());
+    Serial.println("IP address: " + WiFi.localIP().toString());
    }
    if(WiFi.status() != WL_CONNECTED)
    {
@@ -155,7 +163,7 @@ void check()
 {
     Serial.printf("Status = %d\n",WiFi.status());
 //   myBroker.publish("led", (String)counter++);
-  Serial.printf("Stations connected to soft-AP = %d\n", WiFi.softAPgetStationNum());
+     Serial.printf("Stations connected to soft-AP = %d\n", WiFi.softAPgetStationNum());
   // wait a second
 delay(1000);
 }
@@ -164,18 +172,42 @@ void(* resetFunc) (void) = 0;//cài đặt hàm reset--quay tro ve dong code dau
 
 void setup()
 {
+    mySoftwareSerial.begin(9600);
+  if (!myDFPlayer.begin(mySoftwareSerial, true, false)) {  while(true){delay(0); }   }
+  myDFPlayer.volume(30);
+//  myDFPlayer.play(1);
+//  delay(2000);
+//  myDFPlayer.play(2);
+//  delay(2000);
+//  myDFPlayer.play(3);
+//  delay(2000);
+//  myDFPlayer.play(4);
+//  delay(2000);
+//  digitalWrite(LED_PIN1,HIGH);
+//  delay(500);
+//  digitalWrite(LED_PIN2,HIGH);
+//  delay(500);
+//  digitalWrite(LED_PIN3,HIGH);
+  
   Serial.begin(115200);
+  
   Serial.println();
+  
+
+  
   Serial.println();
+  
   pinMode(LED_PIN1, OUTPUT);
   pinMode(LED_PIN2, OUTPUT);
   pinMode(LED_PIN3, OUTPUT);
 
+  
   startWiFiClient();
 
 // Start the broker
   Serial.println("Starting MQTT broker");
   myBroker.init();
+  
   myBroker.subscribe("control1");
   myBroker.subscribe("control2");
 //
@@ -194,7 +226,7 @@ void loop()
 //  check();
   if(WiFi.status()==1)
   {
-    resetFunc();//tiến hành reset
+    resetFunc();
   }
 // tao timer dem va so sanh voi 1 bien--> bang nhau --> chay ham  startClient
 }
