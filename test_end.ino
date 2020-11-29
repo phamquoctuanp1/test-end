@@ -5,6 +5,7 @@
 
 #include <DFRobotDFPlayerMini.h>
 #include "SoftwareSerial.h"
+
 SoftwareSerial mySoftwareSerial(D3, D4); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 
@@ -18,8 +19,8 @@ int dem = 1000;
 unsigned long time_now1 =0;
 unsigned long time_now2 =0;
 
-const char* ssid = "Phenikaa 167 HN";     // your network SSID (name):QUOCDAT:Pham Quoc Tuan MTA:Phenikaa 167 HN
-const char* pass = "phenikaa2018"; // your network password::66668888:tuan151299:phenikaa2018
+const char* ssid = "A405";     // your network SSID (name):QUOCDAT:Pham Quoc Tuan MTA:Phenikaa 167 HN
+const char* pass = "tuan211095"; // your network password::66668888:tuan151299:phenikaa2018
 
 class myMQTTBroker: public uMQTTBroker
 {
@@ -66,7 +67,6 @@ public:
         digitalWrite(LED_PIN3, HIGH);
         while(millis() < time_now2 + dem)
         {
-          Serial.print(".");
           delay(100);
         }
         digitalWrite(LED_PIN3, LOW);
@@ -127,24 +127,28 @@ PubSubClient client(espClient);
 void startWiFiClient()
 {
   Serial.println("Connecting to "+(String)ssid);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, pass);
-  delay(5000);
+  WiFi.mode(WIFI_STA);Serial.println("131");
+  WiFi.begin(ssid, pass);Serial.println("132");
+  delay(8000);Serial.println("133");
 
    if(WiFi.status() == WL_CONNECTED)
-   {
+   {Serial.println("135");
     digitalWrite(LED_PIN1, HIGH);
     delay(500);
     digitalWrite(LED_PIN1, LOW);
     Serial.println("WiFi client connected");
     Serial.println("IP address: " + WiFi.localIP().toString());
+    client.setServer(WiFi.localIP(), 1883);Serial.println("142");
+    //
+    
    }
    if(WiFi.status() != WL_CONNECTED)
    {
+    Serial.println("145");
     digitalWrite(LED_PIN2, HIGH);
     delay(500);
     digitalWrite(LED_PIN2, LOW);
-    startWiFiAP();
+    startWiFiAP();Serial.println("152");
    }
 
 }
@@ -152,11 +156,11 @@ void startWiFiClient()
 
 void startWiFiAP()
 {
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP("Hello World","88888888");
+  WiFi.mode(WIFI_AP);Serial.println("160");
+  WiFi.softAP("Hello World","88888888");Serial.println("161");
   Serial.println("AP started... Hello World");
   Serial.println("IP address: " + WiFi.softAPIP().toString());
-
+  
   
 }
 void check()
@@ -168,13 +172,12 @@ void check()
 delay(1000);
 }
 
-void(* resetFunc) (void) = 0;//cài đặt hàm reset--quay tro ve dong code dau tien
-
+void(* resetFunc) (void) = 0;
 void setup()
 {
-    mySoftwareSerial.begin(9600);
-  if (!myDFPlayer.begin(mySoftwareSerial, true, false)) {  while(true){delay(0); }   }
-  myDFPlayer.volume(30);
+    mySoftwareSerial.begin(9600);Serial.println("180");
+    if (!myDFPlayer.begin(mySoftwareSerial, true, false)) {  while(true){delay(0); }   }Serial.println("181");
+    myDFPlayer.volume(30);Serial.println("182");
 //  myDFPlayer.play(1);
 //  delay(2000);
 //  myDFPlayer.play(2);
@@ -189,32 +192,25 @@ void setup()
 //  delay(500);
 //  digitalWrite(LED_PIN3,HIGH);
   
-  Serial.begin(115200);
+  Serial.begin(115200);Serial.println("197");
   
   Serial.println();
-  
-
-  
   Serial.println();
   
-  pinMode(LED_PIN1, OUTPUT);
-  pinMode(LED_PIN2, OUTPUT);
-  pinMode(LED_PIN3, OUTPUT);
+  pinMode(LED_PIN1, OUTPUT);Serial.println("202");
+  pinMode(LED_PIN2, OUTPUT);Serial.println("203");
+  pinMode(LED_PIN3, OUTPUT);Serial.println("204");
 
+  startWiFiClient();Serial.println("206");
   
-  startWiFiClient();
-
-// Start the broker
+  // Start the broker
   Serial.println("Starting MQTT broker");
-  myBroker.init();
+  myBroker.init();Serial.println("211");
   
-  myBroker.subscribe("control1");
-  myBroker.subscribe("control2");
-//
-  client.setServer(WiFi.localIP(), 1883);//192.168.4.1,WiFi.localIP().toString()
-//
-
-
+  myBroker.subscribe("control1");Serial.println("213");
+  myBroker.subscribe("control2");Serial.println("214");
+  //myBroker.publish("control1", WiFi.localIP().toString());
+  
 }
 
 //int counter = 1;
@@ -222,10 +218,13 @@ void setup()
 
 void loop()
 {
-
+  client.loop();
+  //Serial.println("221");
+  client.publish("control1", "hello");
 //  check();
   if(WiFi.status()==1)
   {
+    Serial.println("225");
     resetFunc();
   }
 // tao timer dem va so sanh voi 1 bien--> bang nhau --> chay ham  startClient
